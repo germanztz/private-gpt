@@ -26,7 +26,10 @@ spec:
       containers:
         - env:
             - name: HF_TOKEN
-              value: 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
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: HF_TOKEN
             - name: PGPT_EMBED_MODE
               value: ollama
             - name: PGPT_MODE

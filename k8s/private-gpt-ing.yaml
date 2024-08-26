@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: private-gpt-llamacpp-cpu
+  name: private-gpt
   namespace: private-gpt
 spec:
   rules:
-  - host: private-gpt.daimler.ddns.net
+  - host: private-gpt.avena.ddns.net
     http:
       paths:
       - path: /

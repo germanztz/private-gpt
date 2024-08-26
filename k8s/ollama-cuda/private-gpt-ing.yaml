@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: private-gpt
+  namespace: private-gpt
+spec:
+  rules:
+  - host: private-gpt.avena.ddns.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: private-gpt-ollama
+            port:
+              number: 8001
+              

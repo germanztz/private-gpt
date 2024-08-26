@@ -30,7 +30,10 @@ spec:
             - .venv/bin/python scripts/setup && .venv/bin/python -m private_gpt
           env:
             - name: HF_TOKEN
-              value: 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
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: HF_TOKEN
             - name: PGPT_PROFILES
               value: local
             - name: PORT

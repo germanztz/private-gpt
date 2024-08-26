@@ -24,3 +24,4 @@ metadata:
   labels:
     io.kompose.service: ollama
   name: ollama-cm1
+  namespace: private-gpt
