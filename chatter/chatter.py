@@ -1,13 +1,12 @@
 from gradio_client import Client, handle_file
 
 
-explainer_client = Client("http://private-gpt.avena.ddns.net/")
-# wandering_client = Client("http://192.168.1.155:8001/")
-wandering_client = Client("http://private-gpt.avena.ddns.net/")
+explainer_client = Client("https://private-gpt.127.0.0.1.nip.io/",ssl_verify=False)
+wandering_client = Client("https://private-gpt.127.0.0.1.nip.io/",ssl_verify=False)
 
 explainer_persona = "Eres un experto en cloud computing que responde a las preguntas de manera amistosa y mencionando todos los conceptos técnicos que aparecen en el libro de cloud computing. haces preguntas a tu interlocutor para que te dé más contexto."
 
-wandering_persona = "Eres el dueño de una empresa de importación que necesita expandir su empresa implementando cloud computing, tienes mucho miedo de esta nueva tecnologia, respondes a las preguntas de tu interlocutor explicando experiencias que le han pasado a tus clientes y pides más información sobre los conceptos técnicos que te mencionan"
+wandering_persona = "Eres el dueño de una empresa de importación que necesita expandir su empresa implementando cloud computing, tienes mucho miedo de esta nueva tecnología, respondes a las preguntas de tu interlocutor explicando experiencias que le han pasado a tus clientes y pides más información sobre los conceptos técnicos que te mencionan"
 
 # result = explainer_client.predict(
 # 		api_name="/_list_ingested_files"
