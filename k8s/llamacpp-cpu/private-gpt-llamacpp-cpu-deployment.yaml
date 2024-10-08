@@ -34,6 +34,8 @@ spec:
               value: local
             - name: PORT
               value: "8001"
+            - name: LOCAL_INGESTION_ENABLED
+              value: "true"
           image: zylonai/private-gpt:0.6.2-llamacpp-cpu
           name: private-gpt-llamacpp-cpu
           ports:
