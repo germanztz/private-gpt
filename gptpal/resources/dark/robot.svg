@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fondo del icono -->
+  <rect width="64" height="64" rx="8" fill="#6200ea"/>
+
+  <!-- Cabeza del robot -->
+  <circle cx="32" cy="28" r="12" fill="#fff"/>
+
+  <!-- Ojos del robot -->
+  <circle cx="28" cy="26" r="2" fill="#6200ea"/>
+  <circle cx="36" cy="26" r="2" fill="#6200ea"/>
+
+  <!-- Sonrisa del robot -->
+  <path d="M26 32 Q32 38 38 32" stroke="#6200ea" stroke-width="2" fill="none"/>
+
+  <!-- Cuerpo del robot -->
+  <rect x="22" y="40" width="20" height="12" rx="4" fill="#fff"/>
+
+  <!-- Terminal o ventana de código -->
+  <rect x="25" y="43" width="14" height="6" rx="1" fill="#6200ea"/>
+  
+  <!-- Antenas del robot -->
+  <line x1="24" y1="14" x2="20" y2="8" stroke="#fff" stroke-width="2"/>
+  <line x1="40" y1="14" x2="44" y2="8" stroke="#fff" stroke-width="2"/>
+</svg>

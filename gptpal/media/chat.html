@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base href="${base.href}/">
+    <link rel="stylesheet" href="vscode.css" >
+    <link rel="stylesheet" href="chat.css">
+    <title>Chat App</title>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box">
+            <!-- Mensaje del usuario -->
+            <div class="message user-message">
+                <div class="avatar">
+                    <!-- <img alt="User"> -->
+                </div>
+                <div class="message-content">
+                    <!-- <span class="reply-icon">↩️</span> -->
+                    <p>Hola, ¿cómo estás?</p>
+                </div>
+            </div>
+            <!-- Mensaje del bot -->
+            <div class="message bot-message">
+                <div class="avatar">
+                    <!-- <img alt="Bot"> -->
+                </div>
+                <div class="message-content">
+                    <!-- <span class="reply-icon">↩️</span> -->
+                    <p>Estoy bien, gracias. ¿Y tú?</p>					
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="chat-input" placeholder="Write a prompt or /fix or /explain...">
+            <button id="send-button">Enviar</button>
+        </div>
+    </div>
+
+    <script nonce="${nonce}" src="simpleMarkdown.js"></script>
+    <script nonce="${nonce}" src="chat.js"></script>
+</body>
+</html>
