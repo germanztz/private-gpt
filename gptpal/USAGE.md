@@ -123,3 +123,186 @@ vscode.window.createTreeView('ftpExplorer', {
 ```
 
 See [ftpExplorer.ts](src/ftpExplorer.ts) for the implementation.
+
+
+```bash
+
+api_name: /_upload_file
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_upload_file -s -H "Content-Type: application/json" -d '{
+  "data": [
+    [handle_file('https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf')]
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_upload_file/$EVENT_ID
+
+Accepts 1 parameter:
+
+[0] any Required
+
+The input value that is provided in the "Upload File(s)" Uploadbutton component.
+Returns 1 element
+
+The output value that appears in the "Ingested Files" Dataframe component.
+api_name: /_list_ingested_files
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_list_ingested_files -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_list_ingested_files/$EVENT_ID
+
+Accepts 0 parameters:
+Returns 1 element
+
+The output value that appears in the "Ingested Files" Dataframe component.
+api_name: /_deselect_selected_file
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_deselect_selected_file -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_deselect_selected_file/$EVENT_ID
+
+Accepts 0 parameters:
+Returns 1 element
+
+string
+
+The output value that appears in the "Selected for Query or Deletion" Textbox component.
+api_name: /_selected_a_file
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_selected_a_file -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_selected_a_file/$EVENT_ID
+
+Accepts 0 parameters:
+Returns 1 element
+
+string
+
+The output value that appears in the "Selected for Query or Deletion" Textbox component.
+api_name: /_delete_selected_file
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_delete_selected_file -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_delete_selected_file/$EVENT_ID
+
+Accepts 0 parameters:
+Returns list of 2 elements
+
+[0]
+
+The output value that appears in the "Ingested Files" Dataframe component.
+
+[1] string
+
+The output value that appears in the "Selected for Query or Deletion" Textbox component.
+api_name: /_delete_all_files
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_delete_all_files -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_delete_all_files/$EVENT_ID
+
+Accepts 0 parameters:
+Returns list of 2 elements
+
+[0]
+
+The output value that appears in the "Ingested Files" Dataframe component.
+
+[1] string
+
+The output value that appears in the "Selected for Query or Deletion" Textbox component.
+api_name: /_set_current_mode
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_set_current_mode -s -H "Content-Type: application/json" -d '{
+  "data": [
+    "RAG"
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_set_current_mode/$EVENT_ID
+
+Accepts 1 parameter:
+
+[0] string Required
+
+The input value that is provided in the "Mode" Radio component.
+Returns list of 2 elements
+
+[0] string
+
+The output value that appears in the "System Prompt" Textbox component.
+
+[1] string
+
+The output value that appears in the "value_6" Textbox component.
+api_name: /_set_system_prompt
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_set_system_prompt -s -H "Content-Type: application/json" -d '{
+  "data": [
+    "Hello!!"
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_set_system_prompt/$EVENT_ID
+
+Accepts 1 parameter:
+
+[0] string Required
+
+The input value that is provided in the "System Prompt" Textbox component.
+Returns 1 element
+api_name: /chat
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/chat -s -H "Content-Type: application/json" -d '{
+  "data": [
+    "Hello!!",
+    "RAG",
+    [handle_file('https://github.com/gradio-app/gradio/raw/main/test/test_files/sample_file.pdf')],
+    "Hello!!"
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/chat/$EVENT_ID
+
+Accepts 4 parameters:
+
+[0] string Required
+
+The input value that is provided in the "Message" Textbox component.
+
+[1] any Required
+
+The input value that is provided in the "Mode" Radio component.
+
+[2] string Required
+
+The input value that is provided in the "Upload File(s)" Uploadbutton component.
+
+[3] any Required
+
+The input value that is provided in the "System Prompt" Textbox component.
+Returns 1 element
+
+string
+
+The output value that appears in the "Message" Textbox component.
+api_name: /_list_ingested_files_1
+
+curl -X POST http://private-gpt.127.0.0.1.nip.io/call/_list_ingested_files_1 -s -H "Content-Type: application/json" -d '{
+  "data": [
+]}' \
+  | awk -F'"' '{ print $4}'  \
+  | read EVENT_ID; curl -N http://private-gpt.127.0.0.1.nip.io/call/_list_ingested_files_1/$EVENT_ID
+
+Accepts 0 parameters:
+Returns 1 element
+
+The output value that appears in the "Ingested Files" Dataframe component.
+
+```

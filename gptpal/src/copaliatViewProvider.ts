@@ -58,16 +58,16 @@ export class CopaliatViewProvider implements vscode.WebviewViewProvider {
 						this._workspaceState.update('chatHistory', message.chatHistory).then(() => {
 							vscode.window.showInformationMessage('chatHistory guardada exitosamente.');
 						});
-					return;
+						return;
 					}
-				}
-			});
+			}
+		});
 	}
 
 	public sendMessage(prompt: string, context_data: string | undefined) {
 		if (this._view) {
 			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-			this._view.webview.postMessage({ type: 'sendMessage', prompt: prompt.trim(), context_data: context_data? context_data.trim(): undefined });
+			this._view.webview.postMessage({ type: 'sendMessage', prompt: prompt.trim(), context_data: context_data ? context_data.trim() : undefined });
 		}
 	}
 
@@ -79,8 +79,34 @@ export class CopaliatViewProvider implements vscode.WebviewViewProvider {
 			context_data = activeEditor.document.getText(selection);
 		}
 		return context_data;
-	}	
+	}
 
+
+	public async callApi(prompt: string, context_data: string | undefined): Promise<any> {
+		const url = 'http://localhost:3000';
+		const data = {
+			prompt: prompt.trim(),
+			context_data: context_data ? context_data.trim() : undefined
+		};
+		const response = await fetch(url, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			credentials: 'same-origin', // include, *same-origin, omit
+			headers: {
+				'Content-Type': 'application/json',
+				'Cache-Control': 'no-cache' // Use Cache-Control header instead
+			},
+			redirect: 'follow', // manual, *follow, error
+			referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: JSON.stringify(data) // body data type must match "Content-Type" header
+		});
+		if (response.ok) {
+			return response.json();
+		} else {
+			throw new Error(response.statusText);
+		}
+	}
+	
 	private _getHtmlForWebview(webview: vscode.Webview): string {
 
 		const resourcePath = path.join(this._extensionUri.fsPath, 'media', 'chat.html');

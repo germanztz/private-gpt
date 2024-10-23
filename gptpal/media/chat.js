@@ -59,7 +59,6 @@
 			switch (event.data.type) {
 				case 'sendMessage':
 				{
-					if (!event.data.prompt) break;
 					document.getElementById('chat-input').value = event.data.prompt;
 					sendMessage();
 					break;
