@@ -8,7 +8,7 @@ import path = require('path');
 
 export function activate(context: vscode.ExtensionContext) {
 
-	const provider = new CopaliatViewProvider(context.extensionUri);
+	const provider = new CopaliatViewProvider(context.extensionUri, context.workspaceState);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(CopaliatViewProvider.viewType, provider));

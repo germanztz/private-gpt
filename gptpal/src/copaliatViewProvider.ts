@@ -14,6 +14,7 @@ export class CopaliatViewProvider implements vscode.WebviewViewProvider {
 
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
+		private readonly _workspaceState: vscode.Memento
 	) { }
 
 	public resolveWebviewView(
@@ -34,22 +35,30 @@ export class CopaliatViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
+		webviewView.webview.onDidReceiveMessage(message => {
+			switch (message.type) {
 				case 'getContextDataAndSend':
 					{
-						this.sendMessage(data.prompt, this.getContextData());
+						this.sendMessage(message.prompt, this.getContextData());
 						break;
 					}
 				case 'consoleLog':
 					{
-						console.log(data.value);
+						console.log(message.value);
 						break;
 					}
 				case 'consoleError':
 					{
-						console.error(data.value);
+						console.error(message.value);
 						break;
+					}
+				case 'saveState':
+					{
+						// Guardar el chatHistory recibida en el estado
+						this._workspaceState.update('chatHistory', message.chatHistory).then(() => {
+							vscode.window.showInformationMessage('chatHistory guardada exitosamente.');
+						});
+					return;
 					}
 				}
 			});

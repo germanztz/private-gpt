@@ -3,19 +3,10 @@
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly.
 (function () {
-	let context_data = undefined;
-	let vscode = false;
-
-	let chatHistory = [];
-	try {
-		vscode = acquireVsCodeApi();
-		const oldState = vscode.getState() || { chatHistory: [] };
-
-		/** @type {Array<{ value: string }>} */
-		chatHistory = oldState.chatHistory || [];
-		// updateChatLog(chatHistory);
-
-	} catch (e) { false; }
+	const _chatBox = document.querySelector('.chat-box');
+	let _context_data = undefined;
+	let _vscode = undefined;
+	let _chatHistory = undefined;
 
 
 	document.getElementById('send-button').addEventListener('click', sendMessage);
@@ -25,25 +16,36 @@
 		}
 	});
 
+	function init() {
+		try {
+			_vscode = acquireVsCodeApi();
+			_chatHistory = new ChatHistory(_vscode);
+			_chatHistory.restoreChatHistory(_chatBox);
+		} catch (e) {  logError(e); }
+	}
+
 	function sendMessage() {
 		// log('sending message...');
 		try {
 			
 			let input = document.getElementById('chat-input').value.trim();
 			
-			if ((input === '/fix' || input === '/explain') && !context_data) {
-				vscode ? vscode.postMessage({ type: 'getContextDataAndSend', prompt: input }) : false;
+			if ((input === '/fix' || input === '/explain') && !_context_data) {
+				_vscode ? _vscode.postMessage({ type: 'getContextDataAndSend', prompt: input }) : false;
 
 			}else if (input !== '') {
-				if(context_data) {
-					input = `${input}: </br> <pre> ${context_data} </pre>`;
-					context_data = undefined;
+				if(_context_data) {
+					input = `${input}: </br> <pre> ${_context_data} </pre>`;
+					_context_data = undefined;
 				}
 
-				appendMessage(input, 'user-message');
+				_chatHistory.add(new ChatMessage(input, 'user-message', _context_data).appendTo(_chatBox));
+
 
 				// Simulate bot response
-				setTimeout(function () {appendMessage("echo "+input, 'bot-message');}, 1000);
+				setTimeout(function () {
+					_chatHistory.add(new ChatMessage("echo "+input, 'bot-message', _context_data).appendTo(_chatBox));
+				}, 1000);
 			}
 			document.getElementById('chat-input').value = '';
 		} catch (e) { logError(e); }
@@ -53,32 +55,46 @@
 	// Handle messages sent from the extension to the webview
 	window.addEventListener('message', event => {
 		try {
-				
-			const message = event.data; // The json data that the extension sent
-			let prompt = message.prompt;
-			context_data = message.context_data;
-			switch (message.type) {
+			_context_data = event.data.context_data;
+			switch (event.data.type) {
 				case 'sendMessage':
 				{
-					if (!message.prompt) break;
-					document.getElementById('chat-input').value = prompt;
+					if (!event.data.prompt) break;
+					document.getElementById('chat-input').value = event.data.prompt;
 					sendMessage();
 					break;
 				}
-
+				case 'getState':
+				{
+					false; //TODO:
+				}
 			}
 		} catch (e) { logError(e); }
 	});
 
 
-	function appendMessage(text, className) {
-		try {
-			
-			const chatBox = document.querySelector('.chat-box');
 
+	function log(message) {
+		_vscode ? _vscode.postMessage({ type: 'consoleLog', value: message }) : console.log(message);
+
+	}
+	function logError(e) {
+		_vscode ? _vscode.postMessage({ type: 'consoleError', value: e.message + "\n" + e.stack }) : false;
+		console.error(e);
+	}
+
+	class ChatMessage {
+		constructor(text, sender, context_data) {
+			this.text = text;
+			this.sender = sender;
+			this.context_data = context_data;
+			this.timestamp = new Date();
+		}
+
+		getHtmlElement() {
 			// Crear un nuevo mensaje
 			const messageDiv = document.createElement('div');
-			messageDiv.classList.add('message', className);
+			messageDiv.classList.add('message', this.sender);
 
 			// Crear avatar
 			const avatarDiv = document.createElement('div');
@@ -100,28 +116,59 @@
 			// Agregar texto del mensaje
 			const messageText = document.createElement('div');
 			messageText.classList.add('message-text');
-			messageText.innerHTML = simpleMarkdown(text);
+			messageText.innerHTML = simpleMarkdown(this.text);
 
 			// Armar el mensaje completo
 			// messageContentDiv.appendChild(replyIcon);
 			messageContentDiv.appendChild(messageText);
 			messageDiv.appendChild(avatarDiv);
 			messageDiv.appendChild(messageContentDiv);
+			return messageDiv;
+		}
 
+		appendTo(container) {
 			// Añadir el nuevo mensaje al chat
-			chatBox.appendChild(messageDiv);
-			chatBox.scrollTop = chatBox.scrollHeight;  // Scroll hacia abajo para ver el nuevo mensaje
-		} catch (e) {  logError(e); }
+			container.appendChild(this.getHtmlElement());
+			container.scrollTop = container.scrollHeight;  // Scroll hacia abajo para ver el nuevo mensaje
+			return this;
+		}
 	}
 
-	function log(message) {
-		vscode ? vscode.postMessage({ type: 'consoleLog', value: message }) : console.log(message);
+	class ChatHistory {
+		constructor(app_context) {
+			this._app_context = app_context;
+			if(!app_context.getState()) {app_context.setState({ chatHistory: [] });	}
+			this._state = app_context.getState();
+			// get workspace state memento
+			// https://code.visualstudio.com/api/references/vscode-api#Memento
+			// const memento = vscode.getMemento() || { chatHistory: [] };
 
-	}
-	function logError(e) {
-		vscode ? vscode.postMessage({ type: 'consoleError', value: e.message + "\n" + e.stack }) : false;
-		console.error(e);
+		}
+
+		restoreChatHistory(container) {
+			this._state.chatHistory.forEach(message => {
+				const newMessage = new ChatMessage(message.text, message.sender, message.context_data);
+				newMessage.appendTo(container);
+			});
+		}
+
+		saveState() {
+			this._app_context.setState(this._state);
+			this._app_context.postMessage({	command: 'saveState',
+				chatHistory: this._state.chatHistory
+			});
+		}
+
+		/**
+		 * Adds a new message to the chat history and saves the changes.
+		 * @param {ChatMessage} message The message to be added to the history.
+		 */
+		add(message) {
+			this._state.chatHistory.push(message);
+			this.saveState();
+		}
 	}
 
+	init();
 
 })();
