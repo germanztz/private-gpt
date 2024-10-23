@@ -17,10 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('copaliat.sendMessage', async () => {
 			const context_data = provider.getContextData();
 			let promptValue = undefined;
-			if (context_data) promptValue = '/explain {selected text}';
+			if (context_data) promptValue = '/explain';
 			const prompt = await vscode.window.showInputBox({ value: promptValue , prompt: 'Please enter the message to be sent /fix or /explain' });
 			if (prompt) {
-				provider.sendMessage(prompt.replace('{selected text}', ''), context_data);
+				provider.sendMessage(prompt.trim(), context_data);
 			}
 		}));
 

@@ -85,7 +85,6 @@ export class CopaliatViewProvider implements vscode.WebviewViewProvider {
 			.replace(/\${webview.cspSource}/g, webview_spSource.toString())
 			.replace(/\${base.href}/g, base.toString());
 
-		console.log(html);
 		return html;
 	}
 

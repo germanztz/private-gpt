@@ -55,6 +55,10 @@ body {
     margin-right: auto;
 }
 
+/* .message-text {
+    overflow-x: scroll;
+} */
+
 div.avatar {
 	background-image: url('dep.png');
 	background-size: cover;

@@ -1,10 +1,11 @@
-
 /* eslint-disable no-undef */
 
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly.
 (function () {
+	let context_data = undefined;
 	let vscode = false;
+
 	let chatHistory = [];
 	try {
 		vscode = acquireVsCodeApi();
@@ -25,19 +26,27 @@
 	});
 
 	function sendMessage() {
-		let input = document.getElementById('chat-input').value.trim();
+		// log('sending message...');
+		try {
+			
+			let input = document.getElementById('chat-input').value.trim();
+			
+			if ((input === '/fix' || input === '/explain') && !context_data) {
+				vscode ? vscode.postMessage({ type: 'getContextDataAndSend', prompt: input }) : false;
 
-		if (input === '/fix' || input === '/explain') {
-			vscode ? vscode.postMessage({ type: 'getContextDataAndSend', prompt: input }) : false;
+			}else if (input !== '') {
+				if(context_data) {
+					input = `${input}: </br> <pre> ${context_data} </pre>`;
+					context_data = undefined;
+				}
 
-		}else if (input !== '') {
-			appendMessage(input, 'user-message');
-			// Simulate bot response
-			setTimeout(function () {
-				appendMessage('Respuesta automática del bot.', 'bot-message');
-			}, 1000);
-		}
-		document.getElementById('chat-input').value = '';
+				appendMessage(input, 'user-message');
+
+				// Simulate bot response
+				setTimeout(function () {appendMessage("echo "+input, 'bot-message');}, 1000);
+			}
+			document.getElementById('chat-input').value = '';
+		} catch (e) { logError(e); }
 	}
 
 
@@ -47,65 +56,61 @@
 				
 			const message = event.data; // The json data that the extension sent
 			let prompt = message.prompt;
-			const context_data = message.context_data;
+			context_data = message.context_data;
 			switch (message.type) {
 				case 'sendMessage':
 				{
-					if (!prompt && !context_data) break;
-					if (prompt === '/fix' || prompt === '/explain') {
-						appendMessage(prompt + '\n' + context_data, 'user-message');						
-					} else {
-						appendMessage(prompt, 'user-message');
-					}
+					if (!message.prompt) break;
+					document.getElementById('chat-input').value = prompt;
+					sendMessage();
 					break;
 				}
 
 			}
-		} catch (e) {
-			logError(e);
-		}
+		} catch (e) { logError(e); }
 	});
 
 
 	function appendMessage(text, className) {
 		try {
 			
-		const chatBox = document.querySelector('.chat-box');
+			const chatBox = document.querySelector('.chat-box');
 
-		// Crear un nuevo mensaje
-		const messageDiv = document.createElement('div');
-		messageDiv.classList.add('message', className);
+			// Crear un nuevo mensaje
+			const messageDiv = document.createElement('div');
+			messageDiv.classList.add('message', className);
 
-		// Crear avatar
-		const avatarDiv = document.createElement('div');
-		avatarDiv.classList.add('avatar');
-		// const avatarImg = document.createElement('img');
-		// avatarImg.src = className === 'user-message' ? 'user-icon.png' : 'bot-icon.png';
-		// avatarImg.alt = className === 'user-message' ? 'User' : 'Bot';
-		// avatarDiv.appendChild(avatarImg);
+			// Crear avatar
+			const avatarDiv = document.createElement('div');
+			avatarDiv.classList.add('avatar');
+			// const avatarImg = document.createElement('img');
+			// avatarImg.src = className === 'user-message' ? 'user-icon.png' : 'bot-icon.png';
+			// avatarImg.alt = className === 'user-message' ? 'User' : 'Bot';
+			// avatarDiv.appendChild(avatarImg);
 
-		// Crear contenido del mensaje
-		const messageContentDiv = document.createElement('div');
-		messageContentDiv.classList.add('message-content');
+			// Crear contenido del mensaje
+			const messageContentDiv = document.createElement('div');
+			messageContentDiv.classList.add('message-content');
 
-		// Agregar icono de respuesta
-		// const replyIcon = document.createElement('span');
-		// replyIcon.classList.add('reply-icon');
-		// replyIcon.textContent = '↩️';
+			// Agregar icono de respuesta
+			// const replyIcon = document.createElement('span');
+			// replyIcon.classList.add('reply-icon');
+			// replyIcon.textContent = '↩️';
 
-		// Agregar texto del mensaje
-		const messageText = document.createElement('div');
-		messageText.innerHTML = simpleMarkdown(text);
+			// Agregar texto del mensaje
+			const messageText = document.createElement('div');
+			messageText.classList.add('message-text');
+			messageText.innerHTML = simpleMarkdown(text);
 
-		// Armar el mensaje completo
-		// messageContentDiv.appendChild(replyIcon);
-		messageContentDiv.appendChild(messageText);
-		messageDiv.appendChild(avatarDiv);
-		messageDiv.appendChild(messageContentDiv);
+			// Armar el mensaje completo
+			// messageContentDiv.appendChild(replyIcon);
+			messageContentDiv.appendChild(messageText);
+			messageDiv.appendChild(avatarDiv);
+			messageDiv.appendChild(messageContentDiv);
 
-		// Añadir el nuevo mensaje al chat
-		chatBox.appendChild(messageDiv);
-		chatBox.scrollTop = chatBox.scrollHeight;  // Scroll hacia abajo para ver el nuevo mensaje
+			// Añadir el nuevo mensaje al chat
+			chatBox.appendChild(messageDiv);
+			chatBox.scrollTop = chatBox.scrollHeight;  // Scroll hacia abajo para ver el nuevo mensaje
 		} catch (e) {  logError(e); }
 	}
 
@@ -114,7 +119,8 @@
 
 	}
 	function logError(e) {
-		vscode ? vscode.postMessage({ type: 'consoleError', value: e.message + "\n" + e.stack }) : console.error(e);
+		vscode ? vscode.postMessage({ type: 'consoleError', value: e.message + "\n" + e.stack }) : false;
+		console.error(e);
 	}
 
 
